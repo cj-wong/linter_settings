@@ -33,28 +33,31 @@ function link() {
     local REAL
     REAL="$(pwd)/${1}"
 
-    local DEST
-    DEST="${2}/${1}"
+    local FILE
+    FILE="${1#linters/}"
 
-    if [ -e "$DEST" ]; then
+    local DEST
+    DEST="${2}/${FILE}"
+
+    if [[ -e "$DEST" || -h "$DEST" ]]; then
         if [ -h "$DEST" ]; then
             local LINKED
             LINKED=$(readlink -f "$DEST")
             if [[ "$LINKED" == "$REAL" ]]; then
-                echo "${1} is already symlinked to ${2}."
+                echo "${FILE} is already symlinked to ${2}."
                 return 0
             fi
         fi
 
-        echo "${1} exists in ${2}. Moving to temporary location."
+        echo "${FILE} exists in ${2}. Moving to temporary location."
         local OLD
         OLD=$(mktemp -p "$2")
-        mv "${2}/${1}" "$OLD"
-        echo "Moved existing ${1} to ${OLD}."
+        mv "$DEST" "$OLD"
+        echo "Moved existing ${FILE} to ${OLD}."
     fi
 
     ln -s "$REAL" "$2"
 }
 
-link flake8 ~/.config
-link .shellcheckrc ~
+link linters/flake8 ~/.config
+link linters/.shellcheckrc ~
