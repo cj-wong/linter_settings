@@ -26,7 +26,7 @@ function link() {
             echo "\$2 exists but it isn't a directory."
             return 1
         else
-            mkdir -p "$2"
+            mkdir --parents "$2"
         fi
     fi
 
@@ -42,7 +42,7 @@ function link() {
     if [[ -e "$DEST" || -h "$DEST" ]]; then
         if [ -h "$DEST" ]; then
             local LINKED
-            LINKED=$(readlink -f "$DEST")
+            LINKED=$(readlink --canonicalize "$DEST")
             if [[ "$LINKED" == "$REAL" ]]; then
                 echo "${FILE} is already symlinked to ${2}."
                 return 0
@@ -51,12 +51,12 @@ function link() {
 
         echo "${FILE} exists in ${2}. Moving to temporary location."
         local OLD
-        OLD=$(mktemp -p "$2")
+        OLD=$(mktemp --tmpdir="$2")
         mv "$DEST" "$OLD"
         echo "Moved existing ${FILE} to ${OLD}."
     fi
 
-    ln -s "$REAL" "$2"
+    ln --symbolic "$REAL" "$2"
 }
 
 link linters/flake8 ~/.config
