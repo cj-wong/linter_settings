@@ -3,61 +3,60 @@
 # Link linter settings to appropriate locations.
 # Please only run this script within the project root.
 
-# Link the linter settings to the appropriate directory.
+# Link the linter settings to ~/.config.
 # Globals:
 #   None
 # Arguments:
 #   $1: linter settings file
-#   $2: destination directory; does not need to exist
 # Returns:
 #   0: if no errors occurred
 #   1: if either args were missing or malformed
 function link() {
-    if [[ -z "$1" || -z "$2" ]]; then
-        echo "Both \$1 and \$2 are required."
+    if [[ -z "$1" ]]; then
+        echo "\$1 is required."
         echo "\$1: linter settings file"
-        echo "\$2: destination directory"
         return 1
-    elif [ ! -f "$1" ]; then
+    elif [[ ! -e "$1" ]]; then
         echo "\$1 must be a linter settings file."
         return 1
-    elif [ ! -d "$2" ]; then
-        if [ -e "$2" ]; then
-            echo "\$2 exists but it isn't a directory."
-            return 1
+    fi
+
+    local real
+    real="$(pwd)/${1}"
+
+    local file
+    file="${1#linters/}"
+
+    local dest
+    dest="${HOME}/.config/${file}"
+
+    local old
+
+    if [[ -h "$dest" ]]; then
+        local linked
+        linked=$(readlink --canonicalize "$dest")
+        if [[ "$linked" == "$real" ]]; then
+            echo "${file} is already symlinked to ${dest}."
+            return 0
         else
-            mkdir --parents "$2"
+            echo "A symlink exists at ${dest}, but it doesn't point to"
+            echo "the expected file. Moving to a temporary location."
+            old=$(mktemp --tmpdir="${HOME}/.config")
+            mv "$dest" "$old"
+            echo "Moved old ${dest} to ${old}."
         fi
+    elif [[ -e "$dest" ]]; then
+        echo "${dest} already exists. Moving to temporary location."
+        old=$(mktemp --tmpdir="${HOME}/.config")
+        mv "$dest" "$old"
+        echo "Moved old ${dest} to ${old}."
     fi
 
-    local REAL
-    REAL="$(pwd)/${1}"
-
-    local FILE
-    FILE="${1#linters/}"
-
-    local DEST
-    DEST="${2}/${FILE}"
-
-    if [[ -e "$DEST" || -h "$DEST" ]]; then
-        if [ -h "$DEST" ]; then
-            local LINKED
-            LINKED=$(readlink --canonicalize "$DEST")
-            if [[ "$LINKED" == "$REAL" ]]; then
-                echo "${FILE} is already symlinked to ${2}."
-                return 0
-            fi
-        fi
-
-        echo "${FILE} exists in ${2}. Moving to temporary location."
-        local OLD
-        OLD=$(mktemp --tmpdir="$2")
-        mv "$DEST" "$OLD"
-        echo "Moved existing ${FILE} to ${OLD}."
-    fi
-
-    ln --symbolic "$REAL" "$2"
+    echo "Linking ${file} to ${dest}"
+    ln --symbolic "$real" "$dest"
 }
 
-link linters/flake8 ~/.config
-link linters/.shellcheckrc ~
+
+for linter in linters/*; do
+    link "$linter"
+done
