@@ -6,8 +6,11 @@ These are the linter settings I use for my projects. I started linting code sinc
 
 ## Usage
 
-Run [link_linter.sh](link_linter.sh) to automatically link linter settings files. Install appropriate linting tools as necessary. In my case, that includes SublimeLinter and all of its associated plug-ins.
+Run [link_linter.sh](link_linter.sh) to automatically link linter settings files. Install appropriate linting tools as necessary. In my case, that includes [SublimeLinter] and all of its associated plug-ins.
 
 ## Disclaimer
 
-This project is not affiliated with or endorsed by any of the linters or any linting tools I use, including but not limited to Sublime Text, SublimeLinter, flake8, and shellcheck. See [LICENSE](LICENSE) for more detail.
+This project is not affiliated with or endorsed by any of the linters or any linting tools I use, including but not limited to [Sublime Text], [SublimeLinter], `Flake8`, and `ShellCheck`. See [LICENSE](LICENSE) for more detail.
+
+[Sublime Text]: http://sublimetext.com/
+[SublimeLinter]: https://github.com/SublimeLinter/SublimeLinter
